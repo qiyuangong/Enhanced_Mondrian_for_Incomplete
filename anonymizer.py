@@ -11,15 +11,22 @@ from utils.read_data import read_data
 from utils.read_data import read_tree
 import sys, copy, random
 
-DATA_SELECT = 'a'
 # sys.setrecursionlimit(50000)
+
+__DEBUG = True
 
 
 def get_result_one(att_trees, data, k=10):
     "run mondrian for one time, with k=10"
     print "K=%d" % k
+    print "Mondrian"
     data_back = copy.deepcopy(data)
     _, eval_result = mondrian(att_trees, data, k)
+    print "NCP %0.2f" % eval_result[0] + "%"
+    print "Running time %0.2f" % eval_result[1] + "seconds"
+    data = copy.deepcopy(data_back)
+    _, eval_result = mondrian_delete_missing(att_trees, data, k)
+    print "Mondrian Deletion"
     print "NCP %0.2f" % eval_result[0] + "%"
     print "Running time %0.2f" % eval_result[1] + "seconds"
 
@@ -31,18 +38,35 @@ def get_result_k(att_trees, data):
     data_back = copy.deepcopy(data)
     all_ncp = []
     all_rtime = []
+    deletion_all_ncp = []
+    deletion_all_rtime = []
     # for k in range(5, 105, 5):
     for k in [2, 5, 10, 25, 50, 100]:
-        print '#' * 30
-        print "K=%d" % k
+        if __DEBUG:
+            print '#' * 30
+            print "K=%d" % k
+            print "Mondrian"
         _, eval_result = mondrian(att_trees, data, k)
         data = copy.deepcopy(data_back)
-        print "NCP %0.2f" % eval_result[0] + "%"
         all_ncp.append(round(eval_result[0], 2))
-        print "Running time %0.2f" % eval_result[1] + "seconds"
         all_rtime.append(round(eval_result[1], 2))
+        if __DEBUG:
+            print "NCP %0.2f" % eval_result[0] + "%"
+            print "Running time %0.2f" % eval_result[1] + "seconds"
+            print "Mondrian Deletion"
+        _, eval_result = mondrian_delete_missing(att_trees, data, k)
+        data = copy.deepcopy(data_back)
+        if __DEBUG:
+            print "NCP %0.2f" % eval_result[0] + "%"
+            print "Running time %0.2f" % eval_result[1] + "seconds"
+        deletion_all_ncp.append(round(eval_result[0], 2))
+        deletion_all_rtime.append(round(eval_result[1], 2))
+    print "Mondrian"
     print "All NCP", all_ncp
     print "All Running time", all_rtime
+    print "Mondrian Deletion"
+    print "All NCP", deletion_all_ncp
+    print "All Running time", deletion_all_rtime
 
 
 def get_result_dataset(att_trees, data, k=10, n=10):
@@ -63,10 +87,14 @@ def get_result_dataset(att_trees, data, k=10, n=10):
     datasets.append(length)
     all_ncp = []
     all_rtime = []
+    deletion_all_ncp = []
+    deletion_all_rtime = []
     for pos in datasets:
         ncp = rtime = 0
-        print '#' * 30
-        print "size of dataset %d" % pos
+        if __DEBUG:
+            print '#' * 30
+            print "size of dataset %d" % pos
+            print "Mondrian"
         for j in range(n):
             temp = random.sample(data, pos)
             result, eval_result = mondrian(att_trees, temp, k)
@@ -76,13 +104,33 @@ def get_result_dataset(att_trees, data, k=10, n=10):
             # save_to_file((att_trees, temp, result, k, L))
         ncp /= n
         rtime /= n
-        print "Average NCP %0.2f" % ncp + "%"
+        if __DEBUG:
+            print "Average NCP %0.2f" % ncp + "%"
+            print "Running time %0.2f" % rtime + "seconds"
+            print "Mondrian Deletion"
         all_ncp.append(round(ncp, 2))
-        print "Running time %0.2f" % rtime + "seconds"
         all_rtime.append(round(rtime, 2))
-    print '#' * 30
+        ncp = rtime = 0
+        for j in range(n):
+            temp = random.sample(data, pos)
+            result, eval_result = mondrian_delete_missing(att_trees, temp, k)
+            ncp += eval_result[0]
+            rtime += eval_result[1]
+            data = copy.deepcopy(data_back)
+            # save_to_file((att_trees, temp, result, k, L))
+        ncp /= n
+        rtime /= n
+        if __DEBUG:
+            print "Average NCP %0.2f" % ncp + "%"
+            print "Running time %0.2f" % rtime + "seconds"
+        deletion_all_ncp.append(round(ncp, 2))
+        deletion_all_rtime.append(round(rtime, 2))
+    print "Mondrian"
     print "All NCP", all_ncp
     print "All Running time", all_rtime
+    print "Mondrian Deletion"
+    print "All NCP", deletion_all_ncp
+    print "All Running time", deletion_all_rtime
 
 
 def get_result_qi(att_trees, data, k=10):
@@ -93,40 +141,48 @@ def get_result_qi(att_trees, data, k=10):
     ls = len(data[0])
     all_ncp = []
     all_rtime = []
+    deletion_all_ncp = []
+    deletion_all_rtime = []
     for i in reversed(range(1, ls)):
-        print '#' * 30
-        print "Number of QI=%d" % i
+        if __DEBUG:
+            print '#' * 30
+            print "Number of QI=%d" % i
+            print "Mondrian"
         _, eval_result = mondrian(att_trees, data, k, i)
         data = copy.deepcopy(data_back)
-        print "NCP %0.2f" % eval_result[0] + "%"
+        if __DEBUG:
+            print "NCP %0.2f" % eval_result[0] + "%"
+            print "Running time %0.2f" % eval_result[1] + "seconds"
+            print "Mondrian Deletion"
         all_ncp.append(round(eval_result[0], 2))
-        print "Running time %0.2f" % eval_result[1] + "seconds"
         all_rtime.append(round(eval_result[1], 2))
+        _, eval_result = mondrian_delete_missing(att_trees, data, k, i)
+        data = copy.deepcopy(data_back)
+        if __DEBUG:
+            print "NCP %0.2f" % eval_result[0] + "%"
+            print "Running time %0.2f" % eval_result[1] + "seconds"
+            print "Mondrian Deletion"
+        deletion_all_ncp.append(round(eval_result[0], 2))
+        deletion_all_rtime.append(round(eval_result[1], 2))
+    print "Mondrian"
     print "All NCP", all_ncp
     print "All Running time", all_rtime
+    print "Mondrian Deletion"
+    print "All NCP", deletion_all_ncp
+    print "All Running time", deletion_all_rtime
 
 
 if __name__ == '__main__':
     FLAG = ''
     LEN_ARGV = len(sys.argv)
     try:
-        DATA_SELECT = sys.argv[1]
-        FLAG = sys.argv[2]
+        FLAG = sys.argv[1]
     except:
         pass
     k = 10
-    if DATA_SELECT == 'i':
-        RAW_DATA = read_informs()
-        ATT_TREES = read_informs_tree()
-    else:
-        RAW_DATA = read_adult()
-        ATT_TREES = read_adult_tree()
-    print '#' * 30
-    if DATA_SELECT == 'a':
-        print "Adult data"
-    else:
-        print "INFORMS data"
-    print '#' * 30
+    RAW_DATA = read_data()
+    ATT_TREES = read_tree()
+    # print '#' * 30
     if FLAG == 'k':
         get_result_k(ATT_TREES, RAW_DATA)
     elif FLAG == 'qi':
