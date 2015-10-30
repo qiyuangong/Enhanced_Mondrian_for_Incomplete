@@ -421,23 +421,31 @@ def mondrian(att_trees, data, k, QI_num=-1):
     anonymize(whole_partition)
     rtime = float(time.time() - start_time)
     ncp = 0.0
+    mp = 0.0
     for partition in RESULT:
         p_ncp = []
         r_ncp = 0.0
         for i in range(QI_LEN):
             p_ncp.append(get_normalized_width(partition, i))
         temp = partition.middle
+        raw_missing = 0
         for record in partition.member:
             result.append(temp[:] + [record[-1]])
             for i in range(QI_LEN):
                 if record[i] == '?' or record[i] == '*':
+                    raw_missing += 1
                     continue
                 else:
                     r_ncp += p_ncp[i]
         ncp += r_ncp
+        if raw_missing > 0:
+            mp += len(partition) - mp
     ncp /= QI_LEN
     ncp /= len(data)
     ncp *= 100
+    mp /= QI_LEN
+    mp /= len(data)
+    mp *= 100
     if __DEBUG:
         print "K=%d" % k
         # If the number of raw data is not eual to number published data
@@ -447,10 +455,11 @@ def mondrian(att_trees, data, k, QI_num=-1):
         print "Number of Published Data", sum([len(t) for t in RESULT])
         # print [len(t) for t in RESULT]
         print "NCP = %.2f %%" % ncp
+        print "Missing Pollution = %.2f %%" % mp
     if len(result) != len(data):
         print "Error: lose records"
         pdb.set_trace()
-    return (result, (ncp, rtime))
+    return (result, (ncp, rtime, mp))
 
 
 def mondrian_split_missing(att_trees, data, k, QI_num=-1):
@@ -464,7 +473,7 @@ def mondrian_split_missing(att_trees, data, k, QI_num=-1):
     remain_data = []
     missing_data = []
     result = []
-    eval_result = [0, 0]
+    eval_result = [0, 0, 0]
     for record in data:
         if '?' in record:
             missing_data.append(record)
@@ -477,6 +486,7 @@ def mondrian_split_missing(att_trees, data, k, QI_num=-1):
         + len(remain_data) * remain_eval[0]
     eval_result[0] = eval_result[0] * 1.0 / len(data)
     eval_result[1] = missing_eval[1] + remain_eval[1]
+    eval_result[2] = missing_eval[2]
     return (result, eval_result)
 
 
@@ -490,7 +500,7 @@ def mondrian_delete_missing(att_trees, data, k, QI_num=-1):
     """
     remain_data = []
     num_removed_record = 0
-    eval_result = [0, 0]
+    eval_result = [0, 0, 0]
     for record in data:
         if '?' in record:
             num_removed_record += 1
@@ -501,4 +511,5 @@ def mondrian_delete_missing(att_trees, data, k, QI_num=-1):
     result, eval_r = mondrian(att_trees, remain_data, k, QI_num)
     eval_result[0] = (len(remain_data) * eval_r[0] + 100 * num_removed_record) / len(data)
     eval_result[1] = eval_r[1]
+    eval_result[2] = eval_r[2]
     return result, eval_result

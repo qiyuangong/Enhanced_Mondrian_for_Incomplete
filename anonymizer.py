@@ -24,11 +24,13 @@ def get_result_one(att_trees, data, k=10):
     _, eval_result = mondrian(att_trees, data, k)
     print "NCP %0.2f" % eval_result[0] + "%"
     print "Running time %0.2f" % eval_result[1] + "seconds"
+    print "Missing Pollution = %.2f %%" % eval_result[2]
     data = copy.deepcopy(data_back)
     _, eval_result = mondrian_delete_missing(att_trees, data, k)
     print "Mondrian Deletion"
     print "NCP %0.2f" % eval_result[0] + "%"
     print "Running time %0.2f" % eval_result[1] + "seconds"
+    print "Missing Pollution = %.2f %%" % eval_result[2]
 
 
 def get_result_k(att_trees, data):
@@ -38,6 +40,7 @@ def get_result_k(att_trees, data):
     data_back = copy.deepcopy(data)
     all_ncp = []
     all_rtime = []
+    all_pollution = []
     deletion_all_ncp = []
     deletion_all_rtime = []
     # for k in range(5, 105, 5):
@@ -50,9 +53,11 @@ def get_result_k(att_trees, data):
         data = copy.deepcopy(data_back)
         all_ncp.append(round(eval_result[0], 2))
         all_rtime.append(round(eval_result[1], 2))
+        all_pollution.append(round(eval_result[2], 2))
         if __DEBUG:
             print "NCP %0.2f" % eval_result[0] + "%"
             print "Running time %0.2f" % eval_result[1] + "seconds"
+            print "Missing Pollution = %.2f %%" % eval_result[2]
             print "Mondrian Deletion"
         _, eval_result = mondrian_delete_missing(att_trees, data, k)
         data = copy.deepcopy(data_back)
@@ -64,6 +69,7 @@ def get_result_k(att_trees, data):
     print "Mondrian"
     print "All NCP", all_ncp
     print "All Running time", all_rtime
+    print "Missing Pollution", all_pollution
     print "Mondrian Deletion"
     print "All NCP", deletion_all_ncp
     print "All Running time", deletion_all_rtime
@@ -87,10 +93,11 @@ def get_result_dataset(att_trees, data, k=10, n=10):
     datasets.append(length)
     all_ncp = []
     all_rtime = []
+    all_pollution = []
     deletion_all_ncp = []
     deletion_all_rtime = []
     for pos in datasets:
-        ncp = rtime = 0
+        ncp = rtime = pollution = 0
         if __DEBUG:
             print '#' * 30
             print "size of dataset %d" % pos
@@ -100,16 +107,20 @@ def get_result_dataset(att_trees, data, k=10, n=10):
             result, eval_result = mondrian(att_trees, temp, k)
             ncp += eval_result[0]
             rtime += eval_result[1]
+            pollution += eval_result[2]
             data = copy.deepcopy(data_back)
             # save_to_file((att_trees, temp, result, k, L))
         ncp /= n
         rtime /= n
+        pollution /= n
         if __DEBUG:
             print "Average NCP %0.2f" % ncp + "%"
             print "Running time %0.2f" % rtime + "seconds"
+            print "Missing Pollution = %.2f %%" % pollution + "%"
             print "Mondrian Deletion"
         all_ncp.append(round(ncp, 2))
         all_rtime.append(round(rtime, 2))
+        all_pollution.append(round(eval_result[2], 2))
         ncp = rtime = 0
         for j in range(n):
             temp = random.sample(data, pos)
@@ -128,6 +139,7 @@ def get_result_dataset(att_trees, data, k=10, n=10):
     print "Mondrian"
     print "All NCP", all_ncp
     print "All Running time", all_rtime
+    print "Missing Pollution", all_pollution
     print "Mondrian Deletion"
     print "All NCP", deletion_all_ncp
     print "All Running time", deletion_all_rtime
@@ -141,6 +153,7 @@ def get_result_qi(att_trees, data, k=10):
     ls = len(data[0])
     all_ncp = []
     all_rtime = []
+    all_pollution = []
     deletion_all_ncp = []
     deletion_all_rtime = []
     for i in reversed(range(1, ls)):
@@ -153,9 +166,11 @@ def get_result_qi(att_trees, data, k=10):
         if __DEBUG:
             print "NCP %0.2f" % eval_result[0] + "%"
             print "Running time %0.2f" % eval_result[1] + "seconds"
+            print "Missing Pollution = %.2f %%" % eval_result[2] + "%"
             print "Mondrian Deletion"
         all_ncp.append(round(eval_result[0], 2))
         all_rtime.append(round(eval_result[1], 2))
+        all_pollution.append(round(eval_result[2], 2))
         _, eval_result = mondrian_delete_missing(att_trees, data, k, i)
         data = copy.deepcopy(data_back)
         if __DEBUG:
@@ -167,6 +182,7 @@ def get_result_qi(att_trees, data, k=10):
     print "Mondrian"
     print "All NCP", all_ncp
     print "All Running time", all_rtime
+    print "Missing Pollution", all_pollution
     print "Mondrian Deletion"
     print "All NCP", deletion_all_ncp
     print "All Running time", deletion_all_rtime
