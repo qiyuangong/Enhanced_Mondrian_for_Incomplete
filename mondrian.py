@@ -135,15 +135,11 @@ def find_median(partition, dim):
     splitVal = ''
     nextVal = ''
     value_list = frequency.keys()
-    value_list = [t for t in value_list if t is not '?' and t is not '*']
     value_list.sort(cmp=cmp_str)
     total = sum(frequency.values())
     middle = total / 2
     if middle < GL_K or len(value_list) <= 1:
-        try:
-            return ('', '', value_list[0], value_list[-1])
-        except IndexError:
-            return ('', '', '', '')
+        return ('', '', value_list[0], value_list[-1])
     index = 0
     split_index = 0
     for i, qid_value in enumerate(value_list):
@@ -189,7 +185,7 @@ def split_missing(partition, dim, pwidth, pmiddle):
     """
     nomissing = []
     missing = []
-    sub_partitions = []
+    isolated_partitions = []
     for record in partition.member:
         if record[dim] == '?' or record[dim] == '*':
             missing.append(record)
@@ -200,7 +196,7 @@ def split_missing(partition, dim, pwidth, pmiddle):
     else:
         if len(nomissing) > 0:
             p_nomissing = Partition(nomissing, pwidth, pmiddle)
-            sub_partitions.append(p_nomissing)
+            isolated_partitions.append(p_nomissing)
         mhs = missing
         mhs_middle = pmiddle[:]
         mhs_middle[dim] = '*'
@@ -208,29 +204,32 @@ def split_missing(partition, dim, pwidth, pmiddle):
         mhs_width[dim] = (0, 0)
         p_mhs = Partition(mhs, mhs_width, mhs_middle, partition.is_missing)
         p_mhs.is_missing[dim] = True
-        sub_partitions.append(p_mhs)
-        return sub_partitions
+        isolated_partitions.append(p_mhs)
+        return isolated_partitions
 
 
 def split_numerical(partition, dim, pwidth, pmiddle):
-    sub_partitions = []
     # numeric attributes
-    (splitVal, nextVal, low, high) = find_median(partition, dim)
-    if low == '':
-        pmiddle[dim] = '*'
-        pwidth[dim] = (0, 0)
-        partition.is_missing[dim] = True
-    else:
-        p_low = ATT_TREES[dim].dict[low]
-        p_high = ATT_TREES[dim].dict[high]
-        # update middle
-        if low == high:
-            pmiddle[dim] = low
+    sub_partitions = []
+    isolated_partitions = split_missing(partition, dim, pwidth, pmiddle)
+    mhs = []
+    if len(isolated_partitions) > 0:
+        mhs = isolated_partitions[-1]
+        if len(isolated_partitions) > 1:
+            partition = isolated_partitions[0]
         else:
-            pmiddle[dim] = low + ',' + high
-        pwidth[dim] = (p_low, p_high)
+            return [mhs]
+    (splitVal, nextVal, low, high) = find_median(partition, dim)
+    p_low = ATT_TREES[dim].dict[low]
+    p_high = ATT_TREES[dim].dict[high]
+    # update middle
+    if low == high:
+        pmiddle[dim] = low
+    else:
+        pmiddle[dim] = low + ',' + high
+    pwidth[dim] = (p_low, p_high)
     if splitVal == '' or splitVal == nextVal:
-        return split_missing(partition, dim, pwidth, pmiddle)
+        return isolated_partitions
     middle_pos = ATT_TREES[dim].dict[splitVal]
     lhs_middle = pmiddle[:]
     rhs_middle = pmiddle[:]
@@ -238,11 +237,7 @@ def split_numerical(partition, dim, pwidth, pmiddle):
                                                              splitVal, nextVal)
     lhs = []
     rhs = []
-    mhs = []
     for record in partition.member:
-        if record[dim] == '?' or record[dim] == '*':
-            mhs.append(record)
-            continue
         pos = ATT_TREES[dim].dict[record[dim]]
         if pos <= middle_pos:
             # lhs = [low, means]
@@ -250,6 +245,12 @@ def split_numerical(partition, dim, pwidth, pmiddle):
         else:
             # rhs = (means, high]
             rhs.append(record)
+    if lhs > 0 and lhs < GL_K:
+        return []
+    if rhs > 0 and rhs < GL_K:
+        return []
+    if mhs > 0 and mhs < GL_K:
+        return []
     lhs_width = pwidth[:]
     rhs_width = pwidth[:]
     lhs_width[dim] = (pwidth[dim][0], middle_pos)
@@ -257,13 +258,7 @@ def split_numerical(partition, dim, pwidth, pmiddle):
     sub_partitions.append(Partition(lhs, lhs_width, lhs_middle))
     sub_partitions.append(Partition(rhs, rhs_width, rhs_middle))
     if len(mhs) > 0:
-        mhs_middle = pmiddle[:]
-        mhs_middle[dim] = '*'
-        mhs_width = pwidth[:]
-        mhs_width[dim] = (0, 0)
-        p_mhs = Partition(mhs, mhs_width, mhs_middle, partition.is_missing)
-        p_mhs.is_missing[dim] = True
-        sub_partitions.append(p_mhs)
+        sub_partitions.append(mhs)
     return sub_partitions
 
 
