@@ -28,6 +28,7 @@ def missing_rate(data):
         if flag:
             mrr += 1
     mr = mr * 100.0 / (number_record * r_len)
+    print "Number of missing records", mrr
     mrr = mrr * 100.0 / number_record
     print "Missing Rate %.2f%%" % mr
     print "Missing Record Rate  %.2f%%" % mrr
