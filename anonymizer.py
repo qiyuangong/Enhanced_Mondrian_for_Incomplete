@@ -11,6 +11,7 @@ from utils.utility import missing_rate
 from utils.read_data import read_data
 from utils.read_data import read_tree
 import sys, copy, random
+import cProfile
 
 # sys.setrecursionlimit(50000)
 
@@ -318,7 +319,8 @@ if __name__ == '__main__':
         else:
             get_result_one(ATT_TREES, RAW_DATA)
     elif FLAG == '':
-        get_result_one(ATT_TREES, RAW_DATA)
+        cProfile.run('get_result_one(ATT_TREES, RAW_DATA)')
+        # get_result_one(ATT_TREES, RAW_DATA)
     else:
         print "Usage: python anonymizer [k | qi | data | m | one]"
         print "k: varying k, qi: varying qi numbers, data: varying size of dataset, \
