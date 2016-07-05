@@ -1,8 +1,8 @@
-Semi_Partition
+Enhanced-Mondrian
 ===========================
-Semi_Partition is a Top-down greedy data anonymization algorithm for relational dataset. It's more efficient than Mondrian, which is proposed by Kristen LeFevre in his papers[1]. (To our knowledge, Mondrian is the fastest local recording algorithm, which ensure good data utility at the same time. Although LeFevre gave the pseudocode in his papers, the original source code is not available. You can find the Java implementation in Anonymization Toolbox[2].)
+Enhanced-Mondrian is a Top-down greedy data anonymization algorithm for relational dataset. It preserves more utility on incomplete microdata than Mondrian, which is proposed by Kristen LeFevre in his papers[1]. (To our knowledge, Mondrian is the fastest local recording algorithm, which ensure good data utility at the same time. Although LeFevre gave the pseudocode in his papers, the original source code is not available. You can find the Java implementation in Anonymization Toolbox[2].)
 
-This repository is an **open source python implementation for Semi_Partition**. I implement this algorithm in python for further study.
+This repository is an **open source python implementation for Enhanced-Mondrian**. I implement this algorithm in python for further study.
 
 ### Motivation 
 Researches on data privacy have lasted for more than ten years, lots of great papers have been published. However, only a few open source projects are available on Internet [2-3], most open source projects are using algorithms proposed before 2004! Fewer projects have been used in real life. Worse more, most people even don't hear about it. Such a tragedy! 
@@ -37,6 +37,7 @@ My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your
 [3] [ARX- Powerful Data Anonymization](https://github.com/arx-deidentifier/arx)
 
 [4] G. Ghinita, P. Karras, P. Kalnis, N. Mamoulis. Fast data anonymization with low information loss. Proceedings of the 33rd international conference on Very large data bases, VLDB Endowment, 2007, 758-769
+
 ==========================
 by Qiyuan Gong
 qiyuangong@gmail.com
