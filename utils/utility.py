@@ -11,7 +11,7 @@ def cmp_str(element1, element2):
     return cmp(int(element1), int(element2))
 
 
-def missing_rate(data):
+def missing_rate(data, missing_tag=['*', '?', '-1', '-7', '-8', '-9']):
     mr = 0.0
     mrr = 0.0
     att_m = []
@@ -21,7 +21,7 @@ def missing_rate(data):
     for record in data:
         flag = False
         for index, t in enumerate(record):
-            if t == '?':
+            if t in missing_tag:
                 mr += 1
                 flag = True
                 att_m[index] = True

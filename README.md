@@ -20,13 +20,18 @@ My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your
 
 2) Run "anonymized.py" in root dir with CLI.
 
+    # Usage: python anonymizer [a | i] [k | qi | data]
+    # a:adult, I:INFORMS
+    # k: multiple experiments by varying k
+    # qi: multiple experiments by varying qi numbers
+    # data: multiple experiments by varying size of dataset
+    # m: multiple experiments by varying missing rate
 
 	# run Mondrian with default K(K=10)
 	python anonymizer.py 
 	
 	# run Mondrian with K=20
 	python anonymized.py 20
-
 
 
 ## For more information:

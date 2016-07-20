@@ -20,18 +20,18 @@ ATT_NAMES = ['age', 'workclass', 'final_weight', 'education',
              'native_country', 'class']
 # 8 attributes are chose as QI attributes
 # age and education levels are treated as numeric attributes
-# only matrial_status and workclass has well defined generalization hierarchies.
+# only marital_status and workclass has well defined generalization hierarchies.
 # other categorical attributes only have 2-level generalization hierarchies.
 QI_INDEX = [0, 1, 4, 5, 6, 8, 9, 13]
 IS_CAT = [False, True, False, True, True, True, True, True]
-gl_SA_index = -1
+SA_index = -1
 
 __DEBUG = False
 
 
 def read_data():
     """
-    read microda for *.txt and return read data
+    read microdata for *.txt and return read data
     """
     QI_num = len(QI_INDEX)
     data = []
@@ -58,7 +58,7 @@ def read_data():
                 except KeyError:
                     numeric_dict[i][temp[index]] = 1
             ltemp.append(temp[index])
-        ltemp.append(temp[gl_SA_index])
+        ltemp.append(temp[SA_index])
         data.append(ltemp)
     # pickle numeric attributes and get NumRange
     for i in range(QI_num):
@@ -91,14 +91,10 @@ def read_pickle_file(att_name):
     read pickle file for numeric attributes
     return numrange object
     """
-    try:
-        static_file = open('data/adult_' + att_name + '_static.pickle', 'rb')
+    with open('data/adult_' + att_name + '_static.pickle', 'rb') as static_file:
         (numeric_dict, sort_value) = pickle.load(static_file)
-    except:
-        print "Pickle file not exists!!"
-    static_file.close()
-    result = NumRange(sort_value, numeric_dict)
-    return result
+        result = NumRange(sort_value, numeric_dict)
+        return result
 
 
 def read_tree_file(treename):

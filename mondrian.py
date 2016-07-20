@@ -31,6 +31,8 @@ from models.gentree import GenTree
 from utils.utility import cmp_str
 
 
+
+MISSING_TAG = ['*', '?', '-1', '-7', '-8', '-9']
 __DEBUG = False
 QI_LEN = 10
 GL_K = 5
@@ -427,7 +429,7 @@ def mondrian(att_trees, data, k, QI_num=-1):
         for record in partition.member:
             result.append(temp[:] + [record[-1]])
             for i in range(QI_LEN):
-                if record[i] == '?' or record[i] == '*':
+                if record[i] in MISSING_TAG:
                     raw_missing += 1
                     continue
                 else:
@@ -470,7 +472,7 @@ def mondrian_split_missing(att_trees, data, k, QI_num=-1):
     result = []
     eval_result = [0, 0, 0]
     for record in data:
-        if '?' in record:
+        if len([v for v in record if v in MISSING_TAG]) > 0:
             missing_data.append(record)
         else:
             remain_data.append(record)
@@ -497,7 +499,7 @@ def mondrian_delete_missing(att_trees, data, k, QI_num=-1):
     num_removed_record = 0
     eval_result = [0, 0, 0]
     for record in data:
-        if '?' in record:
+        if len([v for v in record if v in MISSING_TAG]) > 0:
             num_removed_record += 1
             continue
         else:
