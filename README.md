@@ -20,8 +20,8 @@ My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your
 
 2) Run "anonymized.py" in root dir with CLI.
 
-    # Usage: python anonymizer [a | i] [k | qi | data]
-    # a:adult, I:INFORMS
+    # Usage: python anonymizer [a | i] [k | qi | data | m]
+    # a:adult, i:INFORMS
     # k: multiple experiments by varying k
     # qi: multiple experiments by varying qi numbers
     # data: multiple experiments by varying size of dataset

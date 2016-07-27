@@ -25,6 +25,7 @@ ATT_NAMES = ['age', 'workclass', 'final_weight', 'education',
 QI_INDEX = [0, 1, 4, 5, 6, 8, 9, 13]
 IS_CAT = [False, True, False, True, True, True, True, True]
 SA_index = -1
+MISSING_TAG = ['*', '?', '-1', '-7', '-8', '-9']
 
 __DEBUG = False
 
@@ -52,6 +53,10 @@ def read_data():
         ltemp = []
         for i in range(QI_num):
             index = QI_INDEX[i]
+            if temp[index] in MISSING_TAG:
+                # replace all missing tag with *
+                ltemp.append('*')
+                continue
             if IS_CAT[i] is False:
                 try:
                     numeric_dict[i][temp[index]] += 1

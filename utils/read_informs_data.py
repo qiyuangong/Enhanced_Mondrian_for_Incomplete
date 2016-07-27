@@ -15,8 +15,10 @@ QI_INDEX = [3, 4, 6, 13, 15, 16]
 # if you want to achieve better utility, you can set some numeric attribute
 # to be False. Then the program will treat it as a numeric attributes
 # and generate range values without generalization hierarchy
-IS_CAT = [False, False, False, False, False, False]
+IS_CAT = [False, False, True, False, True, False]
 SA_index = -1
+MISSING_TAG = ['*', '?', '-1', '-7', '-8', '-9']
+
 
 def read_tree(flag=0):
     """read tree from data/tree_*.txt, store them in att_tree
@@ -97,6 +99,10 @@ def read_data(flag=0):
         ltemp = []
         for i in range(QI_num):
             index = QI_INDEX[i]
+            if temp[index] in MISSING_TAG:
+                # replace all missing tag with *
+                ltemp.append('*')
+                continue
             if IS_CAT[i] is False:
                 try:
                     numeric_dict[i][temp[index]] += 1
